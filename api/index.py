@@ -20,7 +20,7 @@ def get_marks():
             marks = []
             for name in names:
                 for data in marks_data_arr:
-                    if data["name"] == name:
+                    if str.lower(data["name"]) == str.lower(name):
                         marks.append(data.get("marks"))
             return jsonify({"marks": marks})
         else:
