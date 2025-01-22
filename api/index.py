@@ -20,10 +20,8 @@ def get_marks():
             marks = []
             for name in names:
                 for data in marks_data_arr:
-                    print(data)
                     if data["name"] == name:
                         marks.append(data.get("marks"))
-            print(marks)
             return jsonify({"marks": marks})
         else:
             return jsonify({"marks": marks_data_arr})
