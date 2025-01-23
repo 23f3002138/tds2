@@ -1,40 +1,27 @@
-from flask import Flask, request, jsonify
+from fastapi import FastAPI, Query
+from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import json
 
-app = Flask(__name__)
+app = FastAPI()
 
+app.add_middleware(
+     CORSMiddleware,
+    allow_origins=["*"],  
+    allow_methods=["*"],  
+    allow_headers=["*"], 
+)
 
-@app.route("/")
-def home():
-    return "it works!"
+with open("q-vercel-python.json") as f:
+    student_data = json.load(f)
 
+def get_marks_by_name(name):
+    for student in student_data:
+        if student["name"].lower() == name.lower():
+            return student["marks"]
+    return None
 
-@app.route("/api", methods=["GET"])
-def get_marks():
-    try:
-        with open("./q-vercel-python.json") as f:
-            marks_data_arr = json.load(f)
-        f.close()
-        names = request.args.getlist("name")
-        if names is not None:
-            marks = []
-            for name in names:
-                for data in marks_data_arr:
-                    if str.lower(data["name"]) == str.lower(name):
-                        marks.append(data.get("marks"))
-            return jsonify({"marks": marks})
-        else:
-            return jsonify({"marks": marks_data_arr})
-
-    except Exception as e:
-        return jsonify({"error": str(e)})
-
-
-@app.route("/about")
-def about():
-    return "About"
-
-
-# run the app
-# if __name__ == "__main__":
-#     app.run()
+@app.get("/api")
+async def get_marks(name: list[str] = Query([])):
+    marks = [get_marks_by_name(student_name) for student_name in name]
+    return JSONResponse(content={"marks": marks})
